@@ -6,6 +6,10 @@
 PROM_SERVER = "http://cluster-stats:8480"
 PROM_RETENTION_DAYS = 365
 
+# Grafana base URL for job dashboard 
+# Used by 'jobstats -g <job_id>'. The script appends the correct time range for the job
+GRAFANA_BASE_URL = "http://cluster-stats:8481/d/cdzyupansc2kgd/slurm-jobstats?orgId=1"
+
 # if using Slurm database then include the lines below with "enabled": False
 # if using MariaDB then set "enabled": True and uncomment "config_file"
 EXTERNAL_DB_TABLE = "job_statistics"

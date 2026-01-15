@@ -39,12 +39,14 @@ class Jobstats:
                  gpus=None,
                  cluster=None,
                  prom_server=None,
+                 grafana_base_url=None,
                  debug=False,
                  debug_syslog=False,
                  force_recalc=False,
                  json_or_base64=False):
         self.cluster = cluster
         self.prom_server = prom_server
+        self.grafana_base_url = grafana_base_url
         self.debug = debug
         self.debug_syslog = debug_syslog
         self.force_recalc = force_recalc
@@ -521,3 +523,22 @@ class Jobstats:
                 return base64.b64encode(gzip.compress(data.encode('ascii'))).decode('ascii')
         else:
             return data
+
+    def generate_grafana_url(self):
+        if self.grafana_base_url is None:
+            self.error("Cannot generate the Grafana URL. The Grafana base URL for jobstats was not configured.")
+
+        grafana_vars = {
+            "var-JobID": self.jobid,
+            "from": f"{self.start}000", # Convert time in sec to ms
+            "to": f"{self.end}000",     # Convert time in sec to ms
+        }
+
+        if self.state == "RUNNING":
+             grafana_vars["to"] = "now"
+
+        # Separator between grafana_base_url and query_string
+        sep = "&" if "?" in self.grafana_base_url else "?"
+        query_string = "&".join(f"{k}={v}" for k, v in grafana_vars.items())
+
+        return f"{self.grafana_base_url}{sep}{query_string}"
